@@ -9,5 +9,5 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.6
-      - key: ANTHROPIC_API_KEY
+      - key: GEMINI_API_KEY
         sync: false
