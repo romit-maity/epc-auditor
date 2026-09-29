@@ -1,0 +1,61 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EPC Cross-Document Consistency Auditor</title>
+<script src="config.js"></script>
+<style>
+:root{--bg:#0f1419;--card:#181f27;--line:#2a3441;--tx:#e6edf3;--mut:#8b98a5;--pass:#2ea043;--fail:#e5534b;--agent:#d29922}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.45 system-ui,sans-serif}
+header{padding:16px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+h1{font-size:18px;margin:0}small,.mut{color:var(--mut)}.btns{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+button,label.btn{background:#238636;color:#fff;border:0;border-radius:6px;padding:8px 14px;cursor:pointer;font-weight:600;font-size:14px}button.sec{background:#30363d}
+main{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;padding:16px 24px}@media(max-width:1000px){main{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px;overflow-x:auto}.card h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:0 0 10px}
+.full{grid-column:1/-1}.sum{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}.sum div{flex:1;min-width:90px;padding:10px;border-radius:8px;border:1px solid var(--line)}.sum b{font-size:22px;display:block}
+table{width:100%;border-collapse:collapse;min-width:640px}th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}th{color:var(--mut);font-weight:500}tr.row{cursor:pointer}tr.row:hover,tr.sel{background:#1f2933}
+.tw{max-height:420px;overflow:auto}.b{padding:2px 9px;border-radius:99px;font-size:12px;font-weight:700;color:#fff}.PASS{background:var(--pass)}.FAIL{background:var(--fail)}.AGENT{background:var(--agent);color:#111}
+.kv{margin:0 0 10px}.kv span{display:block;color:var(--mut);font-size:12px}code{background:#0d1117;padding:6px 8px;border-radius:6px;display:block;font-size:12px}
+.legend{font-size:12px;color:var(--mut);margin-top:8px}svg text{fill:var(--tx);font-size:9px}.gw{max-height:460px;overflow:auto}
+.chip{display:inline-block;background:#0d1117;border:1px solid var(--line);border-radius:6px;padding:3px 8px;margin:0 6px 6px 0;font-size:12px}.warn{color:var(--agent)}
+</style></head><body>
+<header><div><h1>EPC Cross-Document Consistency Auditor</h1><small>Knowledge-graph audit · deterministic first, LLM only for the residual</small></div>
+<div class="btns"><span class="mut" id="msg"></span><label class="btn">Upload project files<input type="file" id="f" multiple hidden onchange="upload(this.files)"></label>
+<button class="sec" onclick="post('/reset','Loading sample project…')">Sample project</button><button class="sec" onclick="post('/audit/run','Re-running audit…')">Re-run</button></div></header>
+<main>
+<section class="card full"><h2>Ingestion &amp; coverage</h2><div id="ing"></div></section>
+<section class="card full"><div class="sum" id="sum"></div>
+<h2>Audit log</h2><div class="tw"><table><thead><tr><th>Status</th><th>Parameter</th><th>Contract</th><th>Spec</th><th>Drawing</th><th>Check</th><th>Trace ID</th></tr></thead><tbody id="rows"></tbody></table></div>
+<div class="legend"><span class="b PASS">PASS</span> / <span class="b FAIL">FAIL</span> deterministic rule (no LLM) &nbsp; <span class="b AGENT">AGENT</span> LLM fallback — no closed-form rule exists</div></section>
+<section class="card"><h2>Knowledge graph</h2><div class="gw"><svg id="g" width="100%"></svg></div><div class="legend">Columns: clauses → spec requirements → drawing callouts → drawing revisions. White = selected triple; red dashed = SUPERSEDES; faded = superseded revision.</div></section>
+<section class="card" id="trace"><h2>Traceability</h2><span class="mut">Select a row.</span></section>
+</main>
+<script>
+const API=window.API_BASE_URL;let D={rows:[],excluded:[],gaps:[],warnings:[],stats:{}},G=null,SEL=null;
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const say=t=>msg.textContent=t;
+async function refresh(){[D,G]=await Promise.all([fetch(API+'/audit').then(r=>r.json()),fetch(API+'/graph').then(r=>r.json())]);SEL=null;render();say('')}
+async function post(p,t){say(t);try{const r=await fetch(API+p,{method:'POST'});if(!r.ok)throw new Error(await r.text());await refresh()}catch(e){say('Error: '+e.message)}}
+async function upload(files){if(!files.length)return;say('Ingesting '+files.length+' files and auditing…');const fd=new FormData();[...files].forEach(x=>fd.append('files',x));
+ try{const r=await fetch(API+'/upload',{method:'POST',body:fd});if(!r.ok)throw new Error(await r.text());await refresh()}catch(e){say('Error: '+e.message)}f.value=''}
+function render(){
+ const n=s=>D.rows.filter(r=>r.status==s).length,s=D.stats;
+ ing.innerHTML=`<span class="chip">${s.files} files</span><span class="chip">${s.contracts} contract(s)</span><span class="chip">${s.specs} spec(s)</span><span class="chip">${s.clauses_parsed} clauses parsed</span><span class="chip">${s.clauses_ignored} ignored (no checkable content)</span><span class="chip">${s.drawing_sheets_stubbed} drawing sheets registered (content extraction stubbed)</span><span class="chip">${D.excluded.length} triples excluded (superseded revision)</span>`+
+  (D.gaps.length?`<p class="warn"><b>Coverage gaps (${D.gaps.length}):</b> ${D.gaps.map(g=>esc(g.parameter)+' — '+esc(g.reason)).join('; ')}</p>`:'')+
+  (D.warnings.length?`<p class="warn"><b>Ingestion warnings:</b> ${D.warnings.map(esc).join('; ')}</p>`:'');
+ sum.innerHTML=[['PASS','var(--pass)'],['FAIL','var(--fail)'],['AGENT','var(--agent)']].map(([k,c])=>`<div style="border-color:${c}"><b>${n(k)}</b>${k}</div>`).join('')+`<div><b>${D.rows.length}</b>Triples verified</div>`;
+ rows.innerHTML=D.rows.map(r=>`<tr class="row ${r.triple_id==SEL?'sel':''}" onclick="pick('${r.triple_id}')"><td><span class="b ${r.status}">${r.status}</span></td><td>${esc(r.parameter)}</td><td>${esc(r.contract_value)}</td><td>${esc(r.spec_value)}</td><td>${esc(r.drawing_value)}</td><td>${r.check_type}</td><td class="mut">${r.triple_id}</td></tr>`).join('');
+ drawGraph();
+ const r=D.rows.find(x=>x.triple_id==SEL);if(r)trace.innerHTML=`<h2>Traceability · ${esc(r.triple_id)}</h2><span class="b ${r.status}">${r.status}</span>
+ <p class="kv"><span>Contract clause</span>${esc(r.clause_text)}</p><p class="kv"><span>Spec requirement</span>${esc(r.spec_text)}</p><p class="kv"><span>Drawing</span>${esc(r.drawing_text)}</p>
+ <p class="kv"><span>Verification rule (${r.status=='AGENT'?'agentic':'deterministic'})</span><code>${esc(r.rule)}</code></p><p class="kv"><span>Result</span>${esc(r.explanation)}</p>`;
+ else trace.innerHTML='<h2>Traceability</h2><span class="mut">Select a row.</span>'}
+function pick(id){SEL=id;render()}
+function drawGraph(){
+ if(!G)return;const cols={clause:0,spec:1,callout:2,drawing_rev:3},X=[70,220,370,520],cnt={},pos={};
+ G.nodes.filter(n=>cols[n.type]!==undefined).forEach(n=>{const c=cols[n.type];cnt[c]=cnt[c]||0;pos[n.id]=[X[c],20+cnt[c]++*15]});
+ const H=Math.max(...Object.values(cnt),1)*15+30;g.setAttribute('viewBox',`0 0 640 ${H}`);g.setAttribute('height',H*0.9);
+ const t=SEL&&G.triples[SEL],hi=new Set(t?[t.clause_id,t.spec_id,t.callout_id,t.drawing_rev_id].filter(Boolean):[]);
+ const sup=new Set(G.edges.filter(e=>e.rel=='SUPERSEDES').map(e=>e.target)),col={clause:'#58a6ff',spec:'#a371f7',callout:'#8b98a5',drawing_rev:'#d29922'};
+ g.innerHTML=G.edges.filter(e=>pos[e.source]&&pos[e.target]).map(e=>{const[a,b]=[pos[e.source],pos[e.target]],on=hi.has(e.source)&&hi.has(e.target),s=e.rel=='SUPERSEDES';
+  return `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${s?'#e5534b':on?'#fff':'#2a3441'}" stroke-width="${on?2:.7}" ${s?'stroke-dasharray="3"':''}/>`}).join('')+
+  G.nodes.filter(n=>pos[n.id]).map(n=>{const[x,y]=pos[n.id];return `<circle cx="${x}" cy="${y}" r="${hi.has(n.id)?5:3}" fill="${hi.has(n.id)?'#fff':col[n.type]}" ${sup.has(n.id)?'fill-opacity=".35"':''}/>${hi.has(n.id)||n.type=='drawing_rev'?`<text x="${x+7}" y="${y+3}">${esc(n.label)}</text>`:''}`}).join('')}
+refresh().catch(()=>say('Cannot reach backend at '+API));
+</script></body></html>

@@ -1,0 +1,32 @@
+{"documents":[
+ {"id":"CON-001","kind":"contract","title":"Pump Skid Fabrication Contract"},
+ {"id":"SPC-M","kind":"spec","title":"Mechanical Specification"},
+ {"id":"DWG-114","kind":"drawing","title":"Pump Casing"},
+ {"id":"DWG-201","kind":"drawing","title":"Skid Frame & Flanges"},
+ {"id":"DWG-301","kind":"drawing","title":"Weld Details"}],
+"clauses":[
+ {"id":"C-4.2","doc_id":"CON-001","kind":"numeric","parameter":"Casing bore diameter","value":100.0,"unit":"mm","spec_ref":"SPC-M-4.2","text":"The casing bore diameter shall be 100.0 mm."},
+ {"id":"C-4.5","doc_id":"CON-001","kind":"numeric","parameter":"Wall thickness","value":8.0,"unit":"mm","spec_ref":"SPC-M-4.5","text":"Casing wall thickness shall be 8.0 mm."},
+ {"id":"C-5.1","doc_id":"CON-001","kind":"numeric","parameter":"Design pressure","value":16,"unit":"bar","spec_ref":"SPC-M-5.1","text":"Design pressure shall be 16 bar."},
+ {"id":"C-5.3","doc_id":"CON-001","kind":"numeric","parameter":"Flange thickness","value":12.0,"unit":"mm","spec_ref":"SPC-M-5.3","text":"Flange thickness shall be 12.0 mm."},
+ {"id":"C-7.4","doc_id":"CON-001","kind":"free_text","parameter":"Weld root gap","spec_ref":"SPC-M-7.4","text":"Root gap shall be adequate for full penetration per good industry practice."},
+ {"id":"C-8.1","doc_id":"CON-001","kind":"revision","parameter":"Governing drawing revision (casing)","cites_drawing_rev":"DWG-114@B","text":"Casing shall be fabricated per DWG-114 Rev B."},
+ {"id":"C-8.2","doc_id":"CON-001","kind":"revision","parameter":"Governing drawing revision (skid)","cites_drawing_rev":"DWG-201@A","text":"Skid shall be fabricated per DWG-201 Rev A."}],
+"spec_reqs":[
+ {"id":"SPC-M-4.2","doc_id":"SPC-M","kind":"numeric","parameter":"Casing bore diameter","value":100.0,"tol":0.5,"unit":"mm","text":"4.2 Casing bore: 100.0 mm ±0.5 mm."},
+ {"id":"SPC-M-4.5","doc_id":"SPC-M","kind":"numeric","parameter":"Wall thickness","value":9.0,"tol":0.1,"unit":"mm","text":"4.5 Minimum wall thickness: 9.0 mm ±0.1 mm."},
+ {"id":"SPC-M-5.1","doc_id":"SPC-M","kind":"numeric","parameter":"Design pressure","value":16,"tol":0.0,"unit":"bar","text":"5.1 Design pressure: 16 bar."},
+ {"id":"SPC-M-5.3","doc_id":"SPC-M","kind":"numeric","parameter":"Flange thickness","value":12.0,"tol":0.2,"unit":"mm","text":"5.3 Flange thickness: 12.0 mm ±0.2 mm."},
+ {"id":"SPC-M-7.4","doc_id":"SPC-M","kind":"free_text","parameter":"Weld root gap","text":"7.4 Root gap per WPS-07: 2.0-3.0 mm, no backing strip."}],
+"drawing_revs":[
+ {"id":"DWG-114@B","drawing_id":"DWG-114","revision":"B","date":"2026-03-02"},
+ {"id":"DWG-114@C","drawing_id":"DWG-114","revision":"C","date":"2026-05-20","supersedes":"DWG-114@B"},
+ {"id":"DWG-201@A","drawing_id":"DWG-201","revision":"A","date":"2026-04-11"},
+ {"id":"DWG-301@A","drawing_id":"DWG-301","revision":"A","date":"2026-04-18"}],
+"callouts":[
+ {"id":"CAL-1","drawing_rev_id":"DWG-114@B","parameter":"Casing bore diameter","value":100.1,"unit":"mm","text":"Bore Ø100.1 mm"},
+ {"id":"CAL-2","drawing_rev_id":"DWG-114@C","parameter":"Casing bore diameter","value":101.4,"unit":"mm","text":"Bore Ø101.4 mm"},
+ {"id":"CAL-3","drawing_rev_id":"DWG-114@C","parameter":"Wall thickness","value":9.0,"unit":"mm","text":"Wall 9.0 mm"},
+ {"id":"CAL-4","drawing_rev_id":"DWG-201@A","parameter":"Design pressure","value":16,"unit":"bar","text":"Design pressure 16 bar"},
+ {"id":"CAL-5","drawing_rev_id":"DWG-201@A","parameter":"Flange thickness","value":12.1,"unit":"mm","text":"Flange t=12.1 mm"},
+ {"id":"CAL-6","drawing_rev_id":"DWG-301@A","parameter":"Weld root gap","text":"Root gap 2 mm typ., see note 4"}]}

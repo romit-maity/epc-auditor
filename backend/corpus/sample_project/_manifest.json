@@ -1,0 +1,21 @@
+{
+ "expected_numeric_fail": [
+  "casing bore diameter",
+  "shaft diameter",
+  "motor baseplate thickness",
+  "hydrotest pressure",
+  "skid base length"
+ ],
+ "expected_revision_fail": [
+  "governing revision dwg-114",
+  "governing revision dwg-202"
+ ],
+ "expected_semantic_inconsistent": [
+  "gasket type",
+  "lifting arrangement"
+ ],
+ "expected_coverage_gaps": [
+  "anchor bolt spacing"
+ ],
+ "expected_superseded_excluded": 4
+}

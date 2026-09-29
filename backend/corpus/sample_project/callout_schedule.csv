@@ -1,0 +1,34 @@
+callout_id,drawing_id,revision,parameter,value,unit,note
+CAL-001,DWG-114,C,casing bore diameter,101.4,mm,casing bore diameter 101.4 mm
+CAL-002,DWG-114,C,casing wall thickness,9,mm,casing wall thickness 9 mm
+CAL-003,DWG-114,C,impeller diameter,210,mm,impeller diameter 210 mm
+CAL-004,DWG-115,A,shaft diameter,45.12,mm,shaft diameter 45.12 mm
+CAL-005,DWG-115,A,keyway width,14,mm,keyway width 14 mm
+CAL-006,DWG-115,A,bearing housing bore,85,mm,bearing housing bore 85 mm
+CAL-007,DWG-204,A,motor rated power,75,kW,motor rated power 75 kW
+CAL-008,DWG-204,A,motor baseplate thickness,21.2,mm,motor baseplate thickness 21.2 mm
+CAL-009,DWG-204,A,coupling spacer length,140,mm,coupling spacer length 140 mm
+CAL-010,DWG-203,A,suction nozzle size,150,mm,suction nozzle size 150 mm
+CAL-011,DWG-203,A,discharge nozzle size,100,mm,discharge nozzle size 100 mm
+CAL-012,DWG-203,A,nozzle projection,300,mm,nozzle projection 300 mm
+CAL-013,DWG-201,A,design pressure,16,bar,design pressure 16 bar
+CAL-014,DWG-201,A,hydrotest pressure,24,bar,hydrotest pressure 24 bar
+CAL-015,DWG-201,A,flange thickness,12.15,mm,flange thickness 12.15 mm
+CAL-016,DWG-201,A,flange bolt circle diameter,160.4,mm,flange bolt circle diameter 160.4 mm
+CAL-017,DWG-202,C,skid base length,2400,mm,skid base length 2400 mm
+CAL-018,DWG-202,C,skid base width,1203,mm,skid base width 1203 mm
+CAL-019,DWG-202,C,skid frame height,850,mm,skid frame height 850 mm
+CAL-020,DWG-202,C,baseplate flatness,0.5,mm,baseplate flatness 0.5 mm
+CAL-021,DWG-301,B,piping wall thickness,6,mm,piping wall thickness 6 mm
+CAL-022,DWG-301,B,pipe support spacing,3040,mm,pipe support spacing 3040 mm
+CAL-023,DWG-301,B,drain connection size,25,mm,drain connection size 25 mm
+CAL-024,DWG-114,B,casing bore diameter,100.1,mm,casing bore diameter 100.1 mm
+CAL-025,DWG-114,B,casing wall thickness,9,mm,casing wall thickness 9 mm
+CAL-026,DWG-202,B,skid base length,2400,mm,skid base length 2400 mm
+CAL-027,DWG-301,A,piping wall thickness,5.5,mm,piping wall thickness 5.5 mm
+CAL-028,DWG-201,A,gasket type,,,"Gasket: ring type joint, soft iron"
+CAL-029,DWG-202,C,lifting arrangement,,,"Lifting lugs x2, see detail"
+CAL-030,DWG-301,B,weld root gap,,,"Root gap 2 mm typ., see note 4"
+CAL-031,DWG-202,C,surface coating,,,"Paint: epoxy primer + PU topcoat, see spec"
+CAL-032,DWG-204,A,nameplate marking,,,"Nameplate 316SS, stamped"
+CAL-033,DWG-115,A,seal arrangement,,,"Seal: single cartridge, Plan 11"
