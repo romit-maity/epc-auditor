@@ -1,0 +1,4 @@
+callout_id,drawing_id,revision,parameter,value,unit,note
+CAL-901,DWG-201,A,flange thickness,12.1,mm,Flange t=12.1 mm
+CAL-902,DWG-114,C,impeller eye diameter,68.5,mm,Impeller eye Ø68.5 mm
+CAL-903,DWG-201,A,bolting material,,,"Bolting: A193 B7 studs, A194 2H nuts, hot-dip galvanised"

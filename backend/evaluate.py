@@ -2,7 +2,7 @@
 import json
 import main
 from pathlib import Path
-main.run_pipeline(str(main.SAMPLE)); S = main.STATE
+S = main.run_pipeline(str(main.SAMPLE))
 m = json.load(open(main.SAMPLE / "_manifest.json")); lo = lambda s: s.lower()
 fail = {lo(r.parameter) for r in S["rows"] if r.status == "FAIL"}
 exp = set(m["expected_numeric_fail"]) | set(m["expected_revision_fail"])

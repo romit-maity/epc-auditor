@@ -1,61 +1,211 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>EPC Cross-Document Consistency Auditor</title>
+<title>EPC Auditor · Cross-Document Consistency</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230969da'/%3E%3Cpath d='M16 16L8 9M16 16L24 9M16 16V25' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='16' r='3.5' fill='white'/%3E%3C/svg%3E">
 <script src="config.js"></script>
 <style>
-:root{--bg:#0f1419;--card:#181f27;--line:#2a3441;--tx:#e6edf3;--mut:#8b98a5;--pass:#2ea043;--fail:#e5534b;--agent:#d29922}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.45 system-ui,sans-serif}
-header{padding:16px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-h1{font-size:18px;margin:0}small,.mut{color:var(--mut)}.btns{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-button,label.btn{background:#238636;color:#fff;border:0;border-radius:6px;padding:8px 14px;cursor:pointer;font-weight:600;font-size:14px}button.sec{background:#30363d}
+:root{--bg:#fff;--panel:#f6f8fa;--line:#d8dee4;--tx:#1f2328;--mut:#59636e;--acc:#0969da;--pass:#1a7f37;--fail:#cf222e;--agent:#9a6700;--con:#0969da;--spec:#8250df;--dwg:#0e7c86}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button,input,select{font:inherit}h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:0 0 10px}
+.mut,small{color:var(--mut)}.btns{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.err{color:var(--fail);min-height:20px;font-size:13px}
+.brand{display:flex;align-items:center;gap:10px}.brand b{font-size:16px;display:block;line-height:1.2}.brand small{display:block;font-size:12px}
+header{padding:12px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+button,label.btn{background:var(--acc);color:#fff;border:1px solid transparent;border-radius:6px;padding:7px 14px;cursor:pointer;font-weight:600}
+button:hover,label.btn:hover{filter:brightness(.92)}button.sec{background:#fff;color:var(--tx);border-color:var(--line)}button.sec:hover{background:var(--panel);filter:none}button:disabled{opacity:.6;cursor:default}
+select,input[type=text],input[type=password]{border:1px solid var(--line);border-radius:6px;padding:7px 10px;background:#fff;color:var(--tx)}
+select:focus-visible,input:focus-visible,button:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+nav{display:flex;gap:4px;padding:0 24px;border-bottom:1px solid var(--line)}
+nav button{background:none;color:var(--mut);border:0;border-bottom:2px solid transparent;border-radius:0;padding:10px 14px}nav button:hover{filter:none;color:var(--tx)}nav button.on{color:var(--tx);border-bottom-color:var(--acc)}
+#login{min-height:100vh;display:grid;place-items:center;padding:24px}
+.lcard,dialog form{display:grid;gap:12px;width:100%}.lcard{width:360px;border:1px solid var(--line);border-radius:12px;padding:28px;box-shadow:0 8px 24px rgba(140,149,159,.2)}
+.lcard h1{font-size:20px;margin:8px 0 0}label{display:grid;gap:4px;font-weight:600;font-size:13px}label input{font-weight:400}
+dialog{border:1px solid var(--line);border-radius:12px;padding:24px;width:min(440px,92vw);box-shadow:0 8px 24px rgba(140,149,159,.3)}dialog::backdrop{background:rgba(31,35,40,.35)}dialog h3{margin:0}dialog p{margin:0}
 main{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;padding:16px 24px}@media(max-width:1000px){main{grid-template-columns:1fr}}
-.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px;overflow-x:auto}.card h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:0 0 10px}
-.full{grid-column:1/-1}.sum{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}.sum div{flex:1;min-width:90px;padding:10px;border-radius:8px;border:1px solid var(--line)}.sum b{font-size:22px;display:block}
-table{width:100%;border-collapse:collapse;min-width:640px}th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}th{color:var(--mut);font-weight:500}tr.row{cursor:pointer}tr.row:hover,tr.sel{background:#1f2933}
-.tw{max-height:420px;overflow:auto}.b{padding:2px 9px;border-radius:99px;font-size:12px;font-weight:700;color:#fff}.PASS{background:var(--pass)}.FAIL{background:var(--fail)}.AGENT{background:var(--agent);color:#111}
-.kv{margin:0 0 10px}.kv span{display:block;color:var(--mut);font-size:12px}code{background:#0d1117;padding:6px 8px;border-radius:6px;display:block;font-size:12px}
+.card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px;overflow-x:auto}
+.full{grid-column:1/-1}.sum{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}.sum div{flex:1;min-width:90px;padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--panel)}.sum b{font-size:22px;display:block}
+table{width:100%;border-collapse:collapse;min-width:640px}th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}th{color:var(--mut);font-weight:600;background:var(--panel);position:sticky;top:0}tr.row{cursor:pointer}tr.row:hover{background:var(--panel)}tr.sel{background:#ddf4ff!important}
+.tw{max-height:420px;overflow:auto}.b{padding:2px 9px;border-radius:99px;font-size:12px;font-weight:700;color:#fff;white-space:nowrap}.PASS{background:var(--pass)}.FAIL{background:var(--fail)}.AGENT{background:var(--agent)}
+.kv{margin:0 0 10px}.kv span{display:block;color:var(--mut);font-size:12px}code{background:var(--panel);border:1px solid var(--line);padding:6px 8px;border-radius:6px;display:block;font-size:12px}
 .legend{font-size:12px;color:var(--mut);margin-top:8px}svg text{fill:var(--tx);font-size:9px}.gw{max-height:460px;overflow:auto}
-.chip{display:inline-block;background:#0d1117;border:1px solid var(--line);border-radius:6px;padding:3px 8px;margin:0 6px 6px 0;font-size:12px}.warn{color:var(--agent)}
+.chip{display:inline-block;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:3px 8px;margin:0 6px 6px 0;font-size:12px}.warn{color:var(--agent)}
+.mapwrap{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;padding:16px 24px}@media(max-width:1000px){.mapwrap{grid-template-columns:1fr}}
+.mapbox{position:relative;border:1px solid var(--line);border-radius:8px;height:calc(100vh - 190px);min-height:540px;overflow:hidden}
+#mm{width:100%;height:100%;display:block;cursor:grab;touch-action:none;user-select:none}#mm:active{cursor:grabbing}
+.zoom{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:6px}.zoom button{width:32px;padding:4px 0}
+.mlegend{position:absolute;left:10px;bottom:10px;background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--mut);display:grid;gap:3px}
+.mlegend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px}.mlegend u{display:inline-block;width:18px;border-top:2px dashed var(--fail);margin-right:4px;vertical-align:3px;text-decoration:none}
+.empty{position:absolute;inset:0;display:grid;place-items:center;color:var(--mut)}
+.node{cursor:pointer}.node circle{stroke:#fff;stroke-width:1.5}.node.old circle,.node.old text{opacity:.45}.ring{stroke:var(--tx)!important;stroke-width:3!important}
+.lbl{font-size:10px}.pill text{fill:#fff;font-size:10px;font-weight:700;text-anchor:middle}.hub{fill:#fff;stroke:var(--line);stroke-width:2}.hubt{font-size:12px;font-weight:700;text-anchor:middle}.hubs{font-size:10px;text-anchor:middle;fill:var(--mut)}
+.sp{stroke-width:2;opacity:.75}.sp2{stroke:#d0d7de;stroke-width:.8}.lk{fill:none;stroke:#8c959f;stroke-opacity:.26;stroke-width:1}.lk.CITES{stroke:var(--con);stroke-opacity:.55}.lk.SUPERSEDES{stroke:var(--fail);stroke-dasharray:4 3;stroke-opacity:.85;stroke-width:1.5}
+.sel .lk{stroke-opacity:.07}.sel .lk.on{stroke-opacity:.95;stroke-width:2}
+.docrow,.chk{display:flex;gap:10px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;cursor:pointer}.docrow:hover,.chk:hover{background:var(--panel)}.docrow>div{flex:1;min-width:0}.dot{width:10px;height:10px;border-radius:50%;flex:none}
+a{color:var(--acc)}
 </style></head><body>
-<header><div><h1>EPC Cross-Document Consistency Auditor</h1><small>Knowledge-graph audit · deterministic first, LLM only for the residual</small></div>
-<div class="btns"><span class="mut" id="msg"></span><label class="btn">Upload project files<input type="file" id="f" multiple hidden onchange="upload(this.files)"></label>
-<button class="sec" onclick="post('/reset','Loading sample project…')">Sample project</button><button class="sec" onclick="post('/audit/run','Re-running audit…')">Re-run</button></div></header>
-<main>
+<svg width="0" height="0" style="position:absolute"><symbol id="logo" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#0969da"/><path d="M16 16L8 9M16 16L24 9M16 16V25" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="16" r="3.5" fill="#fff"/></symbol></svg>
+
+<div id="login" hidden><form class="lcard" id="lf">
+ <div class="brand"><svg width="32" height="32"><use href="#logo"/></svg><div><b>EPC Auditor</b><small>Cross-document consistency</small></div></div>
+ <h1>Sign in</h1>
+ <label>Username<input type="text" id="lu" autocomplete="username" required></label>
+ <label>Password<input type="password" id="lp" autocomplete="current-password" required></label>
+ <div class="err" id="lerr" role="alert"></div>
+ <button type="submit" id="lbtn">Sign in</button>
+</form></div>
+
+<div id="app" hidden>
+<header><div class="brand"><svg width="32" height="32"><use href="#logo"/></svg><div><b>EPC Auditor</b><small>Knowledge-graph audit · deterministic first, LLM only for the residual</small></div></div>
+<div class="btns"><span class="mut" id="msg" role="status"></span>
+ <select id="proj" aria-label="Project" onchange="switchProject(this.value)"></select>
+ <button class="sec" onclick="newp.showModal()">New project</button><button class="sec" onclick="rerun()">Re-run audit</button>
+ <span class="mut" id="user"></span><button class="sec" onclick="logout()">Sign out</button></div></header>
+<nav><button id="tab-audit" class="on" onclick="showTab('audit')">Audit</button><button id="tab-map" onclick="showTab('map')">Document map</button></nav>
+
+<main id="v-audit">
 <section class="card full"><h2>Ingestion &amp; coverage</h2><div id="ing"></div></section>
 <section class="card full"><div class="sum" id="sum"></div>
 <h2>Audit log</h2><div class="tw"><table><thead><tr><th>Status</th><th>Parameter</th><th>Contract</th><th>Spec</th><th>Drawing</th><th>Check</th><th>Trace ID</th></tr></thead><tbody id="rows"></tbody></table></div>
 <div class="legend"><span class="b PASS">PASS</span> / <span class="b FAIL">FAIL</span> deterministic rule (no LLM) &nbsp; <span class="b AGENT">AGENT</span> LLM fallback — no closed-form rule exists</div></section>
-<section class="card"><h2>Knowledge graph</h2><div class="gw"><svg id="g" width="100%"></svg></div><div class="legend">Columns: clauses → spec requirements → drawing callouts → drawing revisions. White = selected triple; red dashed = SUPERSEDES; faded = superseded revision.</div></section>
+<section class="card"><h2>Knowledge graph</h2><div class="gw"><svg id="g" width="100%"></svg></div><div class="legend">Columns: clauses → spec requirements → drawing callouts → drawing revisions. Dark = selected triple; red dashed = SUPERSEDES; faded = superseded revision.</div></section>
 <section class="card" id="trace"><h2>Traceability</h2><span class="mut">Select a row.</span></section>
 </main>
+
+<div class="mapwrap" id="v-map" hidden>
+ <div class="mapbox"><svg id="mm" role="img" aria-label="Document map"></svg><div class="empty" id="mmempty" hidden>No documents were recognised in this project.</div>
+  <div class="zoom"><button class="sec" onclick="zoomBy(.8)" aria-label="Zoom in">+</button><button class="sec" onclick="zoomBy(1.25)" aria-label="Zoom out">−</button><button class="sec" onclick="fit()" aria-label="Reset view">⟲</button></div>
+  <div class="mlegend"><span><i style="background:var(--pass)"></i>PASS <i style="background:var(--fail)"></i>FAIL <i style="background:var(--agent)"></i>AGENT <i style="background:#afb8c1"></i>not checked</span>
+   <span><u></u>supersedes &nbsp;<i style="background:var(--con);border-radius:0;height:2px;width:18px;vertical-align:3px"></i>cites &nbsp;<i style="background:#8c959f;border-radius:0;height:2px;width:18px;vertical-align:3px"></i>references / covers</span>
+   <span>Drag to pan · scroll to zoom · click a node</span></div></div>
+ <aside class="card" id="mpanel"></aside>
+</div>
+</div>
+
+<dialog id="newp"><form id="newf"><h3>New project</h3>
+ <p class="mut">Upload contracts, specifications, a drawing register and a callout schedule. Drawing sheets (DWG-…) are registered but not read.</p>
+ <label>Project name<input type="text" id="pname" maxlength="60" placeholder="e.g. Pump station upgrade"></label>
+ <label>Files<input type="file" id="pfiles" multiple></label>
+ <div class="err" id="perr" role="alert"></div>
+ <div class="btns" style="justify-content:flex-end"><button type="button" class="sec" onclick="newp.close()">Cancel</button><button type="submit" id="pgo">Create &amp; audit</button></div></form></dialog>
+
 <script>
-const API=window.API_BASE_URL;let D={rows:[],excluded:[],gaps:[],warnings:[],stats:{}},G=null,SEL=null;
-const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-const say=t=>msg.textContent=t;
-async function refresh(){[D,G]=await Promise.all([fetch(API+'/audit').then(r=>r.json()),fetch(API+'/graph').then(r=>r.json())]);SEL=null;render();say('')}
-async function post(p,t){say(t);try{const r=await fetch(API+p,{method:'POST'});if(!r.ok)throw new Error(await r.text());await refresh()}catch(e){say('Error: '+e.message)}}
-async function upload(files){if(!files.length)return;say('Ingesting '+files.length+' files and auditing…');const fd=new FormData();[...files].forEach(x=>fd.append('files',x));
- try{const r=await fetch(API+'/upload',{method:'POST',body:fd});if(!r.ok)throw new Error(await r.text());await refresh()}catch(e){say('Error: '+e.message)}f.value=''}
+const API=window.API_BASE_URL,$=id=>document.getElementById(id),KO={contract:0,spec:1,drawing:2};
+const KC={contract:'var(--con)',spec:'var(--spec)',drawing:'var(--dwg)'},SC={PASS:'var(--pass)',FAIL:'var(--fail)',AGENT:'var(--agent)'};
+const KN={contract:'Contract clause',spec:'Spec requirement',drawing:'Drawing revision'},DN={contract:'Contract',spec:'Specification',drawing:'Drawing'};
+let TOKEN=null,USER='',PID='sample',D={rows:[],excluded:[],gaps:[],warnings:[],stats:{}},G=null,M=null,IDX={},SEL=null,MSEL=null,TAB='audit';
+try{TOKEN=localStorage.getItem('epc_token')}catch(e){}
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const say=t=>$('msg').textContent=t,net=e=>e instanceof TypeError?'Cannot reach the server. If it was idle it can take up to a minute to wake up.':e.message;
+const fail=e=>{$('msg').innerHTML=esc(net(e))+' <a href="#" onclick="boot();return false">Retry</a>'};
+const store=t=>{TOKEN=t;try{t?localStorage.setItem('epc_token',t):localStorage.removeItem('epc_token')}catch(e){}};
+const show=v=>{$('login').hidden=v!='login';$('app').hidden=v!='app';if(v=='login')$('lu').focus()};
+
+async function api(path,opt={}){
+ const r=await fetch(API+path,{...opt,headers:{...(opt.headers||{}),...(TOKEN?{Authorization:'Bearer '+TOKEN}:{})}});
+ if(r.status===401&&path!='/auth/login'){logout('Session expired. Please sign in again.');throw new Error('Session expired. Please sign in again.')}
+ if(!r.ok){let m;try{m=(await r.json()).detail}catch(e){}throw new Error(typeof m=='string'?m:'Request failed ('+r.status+')')}
+ return r.json()}
+
+/* ---------- login ---------- */
+$('lf').onsubmit=async e=>{e.preventDefault();$('lerr').textContent='';$('lbtn').disabled=true;$('lbtn').textContent='Signing in…';
+ try{const r=await api('/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:$('lu').value.trim(),password:$('lp').value})});
+  store(r.token);$('lp').value='';await boot()}catch(err){$('lerr').textContent=net(err)}
+ $('lbtn').disabled=false;$('lbtn').textContent='Sign in'};
+function logout(msg=''){store(null);D={rows:[],excluded:[],gaps:[],warnings:[],stats:{}};G=M=null;show('login');$('lerr').textContent=typeof msg=='string'?msg:''}
+async function boot(){
+ if(!TOKEN)return show('login');
+ try{USER=(await api('/auth/me')).user}catch(e){if(TOKEN){show('login');$('lerr').textContent=net(e)}return}
+ show('app');$('user').textContent=USER;
+ try{await loadProjects(PID)}catch(e){fail(e)}}
+
+/* ---------- projects ---------- */
+async function loadProjects(sel){const ps=await api('/projects');if(!ps.find(p=>p.id==sel))sel='sample';PID=sel;
+ $('proj').innerHTML=ps.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');$('proj').value=PID;await refresh()}
+function switchProject(id){PID=id;refresh().catch(fail)}
+async function refresh(){say('Loading…');
+ [D,G,M]=await Promise.all([api(`/projects/${PID}/audit`),api(`/projects/${PID}/graph`),api(`/projects/${PID}/mindmap`)]);
+ M.branches.sort((a,b)=>KO[a.kind]-KO[b.kind]);IDX={};M.branches.forEach(b=>{IDX[b.id]={b};b.children.forEach(c=>IDX[c.id]={b,c})});
+ SEL=MSEL=null;document.title='EPC Auditor · '+D.name;render();if(TAB=='map'){drawMap();panel();fit()}say('')}
+async function rerun(){say('Re-running audit…');try{D=await api(`/projects/${PID}/audit/run`,{method:'POST'});await refresh()}catch(e){fail(e)}}
+$('newf').onsubmit=async e=>{e.preventDefault();const fs=$('pfiles').files;if(!fs.length){$('perr').textContent='Choose at least one file.';return}
+ $('pgo').disabled=true;$('pgo').textContent='Auditing…';$('perr').textContent='';
+ const fd=new FormData();fd.append('name',$('pname').value);[...fs].forEach(x=>fd.append('files',x));
+ try{const p=await api('/projects',{method:'POST',body:fd});$('newp').close();$('pname').value='';$('pfiles').value='';await loadProjects(p.id)}catch(err){$('perr').textContent=net(err)}
+ $('pgo').disabled=false;$('pgo').textContent='Create & audit'};
+
+/* ---------- audit tab ---------- */
+function showTab(t){TAB=t;$('v-audit').hidden=t!='audit';$('v-map').hidden=t!='map';$('tab-audit').classList.toggle('on',t=='audit');$('tab-map').classList.toggle('on',t=='map');if(t=='map'&&M){drawMap();panel();fit()}}
 function render(){
  const n=s=>D.rows.filter(r=>r.status==s).length,s=D.stats;
- ing.innerHTML=`<span class="chip">${s.files} files</span><span class="chip">${s.contracts} contract(s)</span><span class="chip">${s.specs} spec(s)</span><span class="chip">${s.clauses_parsed} clauses parsed</span><span class="chip">${s.clauses_ignored} ignored (no checkable content)</span><span class="chip">${s.drawing_sheets_stubbed} drawing sheets registered (content extraction stubbed)</span><span class="chip">${D.excluded.length} triples excluded (superseded revision)</span>`+
+ $('ing').innerHTML=`<span class="chip">${s.files} files</span><span class="chip">${s.contracts} contract(s)</span><span class="chip">${s.specs} spec(s)</span><span class="chip">${s.clauses_parsed} clauses parsed</span><span class="chip">${s.clauses_ignored} ignored (no checkable content)</span><span class="chip">${s.drawing_sheets_stubbed} drawing sheets registered (content extraction stubbed)</span><span class="chip">${D.excluded.length} triples excluded (superseded revision)</span>`+
   (D.gaps.length?`<p class="warn"><b>Coverage gaps (${D.gaps.length}):</b> ${D.gaps.map(g=>esc(g.parameter)+' — '+esc(g.reason)).join('; ')}</p>`:'')+
   (D.warnings.length?`<p class="warn"><b>Ingestion warnings:</b> ${D.warnings.map(esc).join('; ')}</p>`:'');
- sum.innerHTML=[['PASS','var(--pass)'],['FAIL','var(--fail)'],['AGENT','var(--agent)']].map(([k,c])=>`<div style="border-color:${c}"><b>${n(k)}</b>${k}</div>`).join('')+`<div><b>${D.rows.length}</b>Triples verified</div>`;
- rows.innerHTML=D.rows.map(r=>`<tr class="row ${r.triple_id==SEL?'sel':''}" onclick="pick('${r.triple_id}')"><td><span class="b ${r.status}">${r.status}</span></td><td>${esc(r.parameter)}</td><td>${esc(r.contract_value)}</td><td>${esc(r.spec_value)}</td><td>${esc(r.drawing_value)}</td><td>${r.check_type}</td><td class="mut">${r.triple_id}</td></tr>`).join('');
+ $('sum').innerHTML=[['PASS','var(--pass)'],['FAIL','var(--fail)'],['AGENT','var(--agent)']].map(([k,c])=>`<div style="border-left:4px solid ${c}"><b>${n(k)}</b>${k}</div>`).join('')+`<div><b>${D.rows.length}</b>Triples verified</div>`;
+ $('rows').innerHTML=D.rows.length?D.rows.map(r=>`<tr class="row ${r.triple_id==SEL?'sel':''}" onclick="pick('${esc(r.triple_id)}')"><td><span class="b ${r.status}">${r.status}</span></td><td>${esc(r.parameter)}</td><td>${esc(r.contract_value)}</td><td>${esc(r.spec_value)}</td><td>${esc(r.drawing_value)}</td><td>${r.check_type}</td><td class="mut">${esc(r.triple_id)}</td></tr>`).join('')
+  :'<tr><td colspan="7" class="mut">No checks could be built from these files. See the ingestion warnings and coverage gaps above.</td></tr>';
  drawGraph();
- const r=D.rows.find(x=>x.triple_id==SEL);if(r)trace.innerHTML=`<h2>Traceability · ${esc(r.triple_id)}</h2><span class="b ${r.status}">${r.status}</span>
- <p class="kv"><span>Contract clause</span>${esc(r.clause_text)}</p><p class="kv"><span>Spec requirement</span>${esc(r.spec_text)}</p><p class="kv"><span>Drawing</span>${esc(r.drawing_text)}</p>
- <p class="kv"><span>Verification rule (${r.status=='AGENT'?'agentic':'deterministic'})</span><code>${esc(r.rule)}</code></p><p class="kv"><span>Result</span>${esc(r.explanation)}</p>`;
- else trace.innerHTML='<h2>Traceability</h2><span class="mut">Select a row.</span>'}
+ const r=D.rows.find(x=>x.triple_id==SEL);
+ $('trace').innerHTML=r?`<h2>Traceability · ${esc(r.triple_id)}</h2><span class="b ${r.status}">${r.status}</span>
+  <p class="kv"><span>Contract clause</span>${esc(r.clause_text)}</p><p class="kv"><span>Spec requirement</span>${esc(r.spec_text)}</p><p class="kv"><span>Drawing</span>${esc(r.drawing_text)}</p>
+  <p class="kv"><span>Verification rule (${r.status=='AGENT'?'agentic':'deterministic'})</span><code>${esc(r.rule)}</code></p><p class="kv"><span>Result</span>${esc(r.explanation)}</p>`
+  :'<h2>Traceability</h2><span class="mut">Select a row.</span>'}
 function pick(id){SEL=id;render()}
 function drawGraph(){
  if(!G)return;const cols={clause:0,spec:1,callout:2,drawing_rev:3},X=[70,220,370,520],cnt={},pos={};
  G.nodes.filter(n=>cols[n.type]!==undefined).forEach(n=>{const c=cols[n.type];cnt[c]=cnt[c]||0;pos[n.id]=[X[c],20+cnt[c]++*15]});
- const H=Math.max(...Object.values(cnt),1)*15+30;g.setAttribute('viewBox',`0 0 640 ${H}`);g.setAttribute('height',H*0.9);
+ const H=Math.max(...Object.values(cnt),1)*15+30;$('g').setAttribute('viewBox',`0 0 640 ${H}`);$('g').setAttribute('height',H*0.9);
  const t=SEL&&G.triples[SEL],hi=new Set(t?[t.clause_id,t.spec_id,t.callout_id,t.drawing_rev_id].filter(Boolean):[]);
- const sup=new Set(G.edges.filter(e=>e.rel=='SUPERSEDES').map(e=>e.target)),col={clause:'#58a6ff',spec:'#a371f7',callout:'#8b98a5',drawing_rev:'#d29922'};
- g.innerHTML=G.edges.filter(e=>pos[e.source]&&pos[e.target]).map(e=>{const[a,b]=[pos[e.source],pos[e.target]],on=hi.has(e.source)&&hi.has(e.target),s=e.rel=='SUPERSEDES';
-  return `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${s?'#e5534b':on?'#fff':'#2a3441'}" stroke-width="${on?2:.7}" ${s?'stroke-dasharray="3"':''}/>`}).join('')+
-  G.nodes.filter(n=>pos[n.id]).map(n=>{const[x,y]=pos[n.id];return `<circle cx="${x}" cy="${y}" r="${hi.has(n.id)?5:3}" fill="${hi.has(n.id)?'#fff':col[n.type]}" ${sup.has(n.id)?'fill-opacity=".35"':''}/>${hi.has(n.id)||n.type=='drawing_rev'?`<text x="${x+7}" y="${y+3}">${esc(n.label)}</text>`:''}`}).join('')}
-refresh().catch(()=>say('Cannot reach backend at '+API));
+ const sup=new Set(G.edges.filter(e=>e.rel=='SUPERSEDES').map(e=>e.target)),col={clause:'#0969da',spec:'#8250df',callout:'#8c959f',drawing_rev:'#bf8700'};
+ $('g').innerHTML=G.edges.filter(e=>pos[e.source]&&pos[e.target]).map(e=>{const[a,b]=[pos[e.source],pos[e.target]],on=hi.has(e.source)&&hi.has(e.target),s=e.rel=='SUPERSEDES';
+  return `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${s?'#cf222e':on?'#1f2328':'#d0d7de'}" stroke-width="${on?2:.7}" ${s?'stroke-dasharray="3"':''}/>`}).join('')+
+  G.nodes.filter(n=>pos[n.id]).map(n=>{const[x,y]=pos[n.id];return `<circle cx="${x}" cy="${y}" r="${hi.has(n.id)?5:3}" fill="${hi.has(n.id)?'#1f2328':col[n.type]}" ${sup.has(n.id)?'fill-opacity=".35"':''}/>${hi.has(n.id)||n.type=='drawing_rev'?`<text x="${x+7}" y="${y+3}">${esc(n.label)}</text>`:''}`}).join('')}
+
+/* ---------- document map (mind map) ---------- */
+const MW=1000,MH=800,CX=500,CY=450,R1=200,R2=345;let VB={x:0,y:0,w:MW,h:MH};
+const setVB=()=>$('mm').setAttribute('viewBox',`${VB.x} ${VB.y} ${VB.w} ${VB.h}`);
+function fit(){const r=$('mm').getBoundingClientRect();if(!r.width||!r.height)return;const k=r.width/r.height;VB.h=MH;VB.w=MH*k;if(VB.w<MW){VB.w=MW;VB.h=MW/k}VB.x=CX-VB.w/2;VB.y=CY-VB.h/2;setVB()}
+function zoomAt(px,py,k){const w=Math.min(Math.max(VB.w*k,250),2600),f=w/VB.w;VB.x=px-(px-VB.x)*f;VB.y=py-(py-VB.y)*f;VB.w=w;VB.h*=f;setVB()}
+const zoomBy=k=>zoomAt(VB.x+VB.w/2,VB.y+VB.h/2,k);
+function layout(){const bs=M.branches,n=bs.reduce((s,b)=>s+b.children.length,0)||1,GAP=.05,span=2*Math.PI-GAP*bs.length;
+ let w=bs.map(b=>Math.max(b.children.length/n*span,.4));const sum=w.reduce((a,b)=>a+b,0);w=w.map(x=>x*span/sum);
+ const P={};let a=-Math.PI/2;
+ bs.forEach((b,i)=>{const mid=a+w[i]/2;P[b.id]={x:CX+R1*Math.cos(mid),y:CY+R1*Math.sin(mid)};
+  b.children.forEach((c,j)=>{const t=a+w[i]*(j+.5)/b.children.length;P[c.id]={x:CX+R2*Math.cos(t),y:CY+R2*Math.sin(t),t}});a+=w[i]+GAP});return P}
+const wrap=s=>{const w=s.split(' ');let a='',i=0;while(i<w.length&&(a+' '+w[i]).trim().length<=14)a=(a+' '+w[i++]).trim();
+ if(!a)return[s.slice(0,14),s.length>14?s.slice(14,27)+(s.length>27?'…':''):''];const b=w.slice(i).join(' ');return[a,b.length>14?b.slice(0,13)+'…':b]};
+function drawMap(){
+ const svg=$('mm');$('mmempty').hidden=!!(M&&M.branches.length);if(!M||!M.branches.length){svg.innerHTML='';return}
+ const P=layout(),act=new Set(),f=n=>n.toFixed(1);
+ if(MSEL&&IDX[MSEL])(IDX[MSEL].c?[MSEL]:IDX[MSEL].b.children.map(c=>c.id)).forEach(i=>act.add(i));svg.classList.toggle('sel',act.size>0);
+ const sp=M.branches.map(b=>{const d=P[b.id];return `<line class="sp" x1="${CX}" y1="${CY}" x2="${f(d.x)}" y2="${f(d.y)}" style="stroke:${KC[b.kind]}"/>`+b.children.map(c=>`<line class="sp2" x1="${f(d.x)}" y1="${f(d.y)}" x2="${f(P[c.id].x)}" y2="${f(P[c.id].y)}"/>`).join('')}).join('');
+ const lk=M.links.filter(l=>P[l.source]&&P[l.target]).map(l=>{const a=P[l.source],b=P[l.target],k=IDX[l.source].b===IDX[l.target].b?.97:.25,qx=CX+((a.x+b.x)/2-CX)*k,qy=CY+((a.y+b.y)/2-CY)*k;
+  return `<path class="lk ${l.rel}${act.has(l.source)||act.has(l.target)?' on':''}" d="M${f(a.x)},${f(a.y)}Q${f(qx)},${f(qy)} ${f(b.x)},${f(b.y)}"/>`}).join('');
+ const [l1,l2]=wrap(M.project),hub=`<g><title>${esc(M.project)}</title><circle class="hub" cx="${CX}" cy="${CY}" r="60"/><text class="hubt" x="${CX}" y="${CY-(l2?8:2)}">${esc(l1)}</text>${l2?`<text class="hubt" x="${CX}" y="${CY+6}">${esc(l2)}</text>`:''}<text class="hubs" x="${CX}" y="${CY+24}">${M.branches.length} documents</text></g>`;
+ const lf=M.branches.flatMap(b=>b.children.map(c=>{const p=P[c.id],on=c.id===MSEL,flip=Math.cos(p.t)<0,deg=p.t*180/Math.PI+(flip?180:0);
+  return `<g class="node${c.superseded?' old':''}" data-id="${esc(c.id)}"><title>${esc(c.text)}${c.superseded?' (superseded)':''}</title><circle class="${on?'ring':''}" cx="${f(p.x)}" cy="${f(p.y)}" r="${on?8:6}" style="fill:${SC[c.status]||'#afb8c1'}"/><text class="lbl" transform="translate(${f(p.x)} ${f(p.y)}) rotate(${f(deg)})" x="${flip?-11:11}" y="3" text-anchor="${flip?'end':'start'}">${esc(c.label)}</text></g>`})).join('');
+ const dc=M.branches.map(b=>{const p=P[b.id],w=b.id.length*6.4+14;
+  return `<g class="node pill" data-id="${esc(b.id)}"><title>${esc(b.title)}</title><rect class="${b.id===MSEL?'ring':''}" x="${f(p.x-w/2)}" y="${f(p.y-11)}" width="${f(w)}" height="22" rx="11" style="fill:${KC[b.kind]}"/><text x="${f(p.x)}" y="${f(p.y+3.5)}">${esc(b.id)}</text></g>`}).join('');
+ svg.innerHTML=sp+lk+hub+lf+dc}
+const checksFor=id=>D.rows.filter(r=>{const t=G.triples[r.triple_id];return t&&[t.clause_id,t.spec_id,t.drawing_rev_id,t.callout_id].includes(id)});
+const checksForDoc=b=>{const ids=new Set(b.children.map(c=>c.id));return D.rows.filter(r=>{const t=G.triples[r.triple_id];return t&&[t.clause_id,t.spec_id,t.drawing_rev_id].some(x=>ids.has(x))})};
+function panel(){const el=$('mpanel');if(!M)return;
+ if(!MSEL||!IDX[MSEL]){el.innerHTML='<h2>Documents</h2>'+M.branches.map(b=>{const fl=checksForDoc(b).filter(r=>r.status=='FAIL').length,n=b.children.length;
+  return `<div class="docrow" data-id="${esc(b.id)}"><i class="dot" style="background:${KC[b.kind]}"></i><div><b>${esc(b.id)}</b> <span class="mut">${n} ${b.kind=='drawing'?'revision':'item'}${n==1?'':'s'}</span><br><small>${esc(b.title)}</small></div>${fl?`<span class="b FAIL" title="${fl} failing check(s)">${fl}</span>`:''}</div>`}).join('')
+  +'<p class="mut">Select a document or item to see its checks. Links show how documents depend on each other.</p>';return}
+ const {b,c}=IDX[MSEL],ks=c?checksFor(MSEL):checksForDoc(b);
+ el.innerHTML=`<p><a href="#" data-clear>← All documents</a></p><h2>${c?KN[b.kind]:DN[b.kind]}</h2>
+  <p><b>${esc(c?c.label:b.id)}</b> ${c&&c.status?`<span class="b ${c.status}">${c.status}</span>`:''} ${c&&c.superseded?'<span class="chip">superseded</span>':''}</p>
+  <p>${esc(c?c.text:b.title)}</p>${c?`<p class="mut">In ${esc(b.id)} · ${esc(b.title)}</p>`:''}
+  <h2>${ks.length} check${ks.length==1?'':'s'}</h2>`+(ks.length?ks.map(r=>`<div class="chk" data-t="${esc(r.triple_id)}"><span class="b ${r.status}">${r.status}</span><span>${esc(r.parameter)}</span></div>`).join(''):'<span class="mut">No checks involve this item.</span>')}
+function selectMap(id){MSEL=id===MSEL?null:id;drawMap();panel()}
+$('mpanel').onclick=e=>{if(e.target.closest('[data-clear]')){e.preventDefault();MSEL=null;drawMap();panel();return}
+ const n=e.target.closest('[data-id]');if(n)return selectMap(n.dataset.id);
+ const t=e.target.closest('[data-t]');if(t){SEL=t.dataset.t;showTab('audit');render();$('trace').scrollIntoView({behavior:'smooth',block:'nearest'})}};
+(()=>{const mm=$('mm');let drag=null;
+ mm.addEventListener('click',e=>{const n=e.target.closest('.node');if(n)selectMap(n.dataset.id)});
+ mm.addEventListener('wheel',e=>{e.preventDefault();const r=mm.getBoundingClientRect();zoomAt(VB.x+(e.clientX-r.left)/r.width*VB.w,VB.y+(e.clientY-r.top)/r.height*VB.h,e.deltaY<0?.88:1.14)},{passive:false});
+ mm.addEventListener('pointerdown',e=>{if(e.target.closest('.node'))return;drag={x:e.clientX,y:e.clientY,vx:VB.x,vy:VB.y};mm.setPointerCapture(e.pointerId)});
+ mm.addEventListener('pointermove',e=>{if(!drag)return;const r=mm.getBoundingClientRect();VB.x=drag.vx-(e.clientX-drag.x)/r.width*VB.w;VB.y=drag.vy-(e.clientY-drag.y)/r.height*VB.h;setVB()});
+ mm.addEventListener('pointerup',()=>drag=null);addEventListener('resize',()=>{if(TAB=='map')fit()})})();
+
+boot();
 </script></body></html>

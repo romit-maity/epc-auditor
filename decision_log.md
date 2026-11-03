@@ -16,3 +16,9 @@
 | 2026-09-29 | Strict regex clause grammar; unmatched clauses are counted and reported, never guessed | Parsing stays deterministic and defensible; LLM is not allowed to invent structure |
 | 2026-09-29 | Coverage gaps (clause with nothing to verify against) reported separately, not as PASS/FAIL | "Unverifiable" is a finding but not a verdict; silence would hide it |
 | 2026-09-29 | Sample project generated with a known-answer manifest; `evaluate.py` scores deterministic results | Gives a defensible precision/recall answer instead of "it looks right" |
+| 2026-11-03 | Login: standard-library PBKDF2 hashing plus HMAC-signed expiring bearer tokens; users come from the `AUTH_USERS` env var | Gates the app with no new dependency and no database; Render's free disk is ephemeral, so a stored user table would silently vanish on restart |
+| 2026-11-03 | Failed-login lockout (5 attempts per username per minute); `/health` and `/auth/login` are the only open routes | Cheap brute-force protection; health stays open so the host can probe it |
+| 2026-11-03 | Uploads become named projects held in memory under an id; the sample project is always present | Lets the UI switch between document sets; persistence deliberately deferred (a restart returns to the sample project only) |
+| 2026-11-03 | Uploads that yield no recognisable contract, spec or drawing register are rejected with the reason | An empty project with 0 checks looks like a silent success |
+| 2026-11-03 | Document map is built server-side (`mindmap.py`) from the same graph and audit rows, with no new data | One source of truth: leaves are coloured by the worst audit result touching them, so the map and the audit log cannot disagree |
+| 2026-11-03 | Light theme, system fonts, hand-rolled SVG, no CDN or build step | A demo cannot fail on a blocked font or script request; white background requested |
